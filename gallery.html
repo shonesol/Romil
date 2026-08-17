@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery | Romil Soccer Academy Kifamba</title>
+  <meta name="description" content="See training, matches, tournaments and community activities at Romil Soccer Academy Kifamba.">
+  <link rel="stylesheet" href="css/gallery.css">
+  <style>
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<header class="gallery-header">
+  <div class="gallery-container">
+    <a href="index.html" class="gallery-logo">ROMIL <span>RSAK</span></a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="programs.html">Programs</a>
+      <a href="#gallery">Gallery</a>
+      <a href="membership.html" class="gallery-join">Join Us</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="gallery-hero">
+  <div class="gallery-container">
+    <p class="eyebrow">ROMIL SOCCER ACADEMY KIFAMBA</p>
+    <h1>SEE THE <span>ACTION.</span></h1>
+    <p>Training. Competition. Community. Experience life at Romil Soccer Academy Kifamba.</p>
+  </div>
+</section>
+
+<section class="gallery-section" id="gallery">
+  <div class="gallery-container">
+
+    <div class="section-heading">
+      <p class="eyebrow">PHOTO GALLERY</p>
+      <h2>LIFE AT <span>ROMIL.</span></h2>
+      <p>Photos from training sessions, matches, tournaments and academy activities.</p>
+    </div>
+
+    <div class="gallery-filters">
+      <button class="filter-button active" data-filter="all">All</button>
+      <button class="filter-button" data-filter="training">Training</button>
+      <button class="filter-button" data-filter="competition">Competition</button>
+      <button class="filter-button" data-filter="community">Community</button>
+    </div>
+
+    <div class="gallery-grid">
+
+      <button class="gallery-item" data-category="training" data-image="placeholder.jpg" data-title="Training Session">
+        <div class="gallery-overlay"><span>TRAINING</span><strong>Training Session</strong><small>View image →</small></div>
+      </button>
+
+      <button class="gallery-item" data-category="competition" data-image="placeholder.jpg" data-title="Match Day">
+        <div class="gallery-overlay"><span>COMPETITION</span><strong>Match Day</strong><small>View image →</small></div>
+      </button>
+
+      <button class="gallery-item" data-category="community" data-image="placeholder.jpg" data-title="Team Spirit">
+        <div class="gallery-overlay"><span>COMMUNITY</span><strong>Team Spirit</strong><small>View image →</small></div>
+      </button>
+
+      <button class="gallery-item" data-category="training" data-image="placeholder.jpg" data-title="Ball Mastery">
+        <div class="gallery-overlay"><span>TRAINING</span><strong>Ball Mastery</strong><small>View image →</small></div>
+      </button>
+
+      <button class="gallery-item" data-category="competition" data-image="placeholder.jpg" data-title="Trophy Moment">
+        <div class="gallery-overlay"><span>COMPETITION</span><strong>Trophy Moment</strong><small>View image →</small></div>
+      </button>
+
+      <button class="gallery-item" data-category="training" data-image="placeholder.jpg" data-title="Junior Session">
+        <div class="gallery-overlay"><span>TRAINING</span><strong>Junior Session</strong><small>View image →</small></div>
+      </button>
+
+    </div>
+  </div>
+</section>
+
+<section class="gallery-cta">
+  <div class="gallery-container">
+    <p class="eyebrow">READY TO PLAY?</p>
+    <h2>BE PART OF <span>THE ACTION.</span></h2>
+    <a href="membership.html" class="orange-button">JOIN ROMIL</a>
+  </div>
+</section>
+
+</main>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close image">×</button>
+  <button class="lightbox-prev" id="lightboxPrev" aria-label="Previous image">‹</button>
+  <div class="lightbox-content">
+    <img id="lightboxImage" src="" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+  <button class="lightbox-next" id="lightboxNext" aria-label="Next image">›</button>
+</div>
+
+<footer class="gallery-footer">
+  <div class="gallery-container">
+    <div>
+      <a href="index.html" class="gallery-logo">ROMIL <span>RSAK</span></a>
+      <p>Train. Compete. Improve. Belong.</p>
+    </div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="programs.html">Programs</a>
+      <a href="membership.html">Membership</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/gallery.js"></script>
+</body>
+</html>
