@@ -19,7 +19,55 @@
 </head>
 
 <body>
+  <style>
+Add this small CSS block to css/style.css. It only affects the reviews slider:
 
+/* Reviews slider */
+.reviews-track {
+  position: relative;
+  min-height: 250px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  overflow: hidden;
+}
+.reviews-track .review-card {
+  display: none;
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+}
+.reviews-track .review-card.active {
+  display: block;
+  animation: reviewFade 0.45s ease;
+}
+.reviews-slider-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.reviews-slider-controls .slider-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+@keyframes reviewFade {
+  from {
+    opacity: 0;
+    transform: translateX(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+Important: remove the old renderReviews() function and the old form.addEventListener('submit', ...) section from your existing reviews script before adding this version, so the form isn’t handled twice.
+
+Everything else—your seed reviews, user reviews in localStorage, review form, character counter, validation, and the rest of the page—stays unchanged.
+  </style>
   <!-- HEADER -->
   <header class="site-header" id="top">
     <div class="container nav-wrap">
@@ -524,153 +572,226 @@
       });
     })();
 
-    // ---------- USER REVIEWS (localStorage) ----------
-    (function () {
-      const STORAGE_KEY = 'rsak_user_reviews';
-      const listEl = document.getElementById('reviewsList');
-      const form = document.getElementById('reviewForm');
-      const statusEl = document.getElementById('reviewStatus');
-      const charCount = document.getElementById('charCount');
-      const messageInput = document.getElementById('reviewMessage');
+    //Reviews Slider JavaScript
 
-      if (!listEl || !form) return;
-
-      const seedReviews = [
-        {
-          name: 'Grace N.',
-          role: 'Parent',
-          group: 'Intermediate group',
-          rating: 5,
-          message: 'My son’s confidence and first touch improved within weeks. The coaches are patient and serious about development.',
-          id: 'seed-1'
-        },
-        {
-          name: 'David K.',
-          role: 'Player',
-          group: 'Advanced',
-          rating: 5,
-          message: 'Training is organised and intense in a good way. I finally understand positioning and how to press as a team.',
-          id: 'seed-2'
-        },
-        {
-          name: 'Sarah M.',
-          role: 'Parent',
-          group: 'Junior pathway',
-          rating: 5,
-          message: 'The academy balances hard work with respect. My daughter looks forward to every Saturday session.',
-          id: 'seed-3'
-        },
-        {
-          name: 'James O.',
-          role: 'Parent',
-          group: 'Beginner',
-          rating: 4,
-          message: 'Clear communication and real progress on fitness. Looking forward to more friendly matches this term.',
-          id: 'seed-4'
-        }
-      ];
-
-      function starsHtml(n) {
-        const full = '★'.repeat(Math.max(0, Math.min(5, n)));
-        const empty = '☆'.repeat(5 - Math.max(0, Math.min(5, n)));
-        return full + empty;
+<script>
+  // ---------- USER REVIEWS (localStorage + slider) ----------
+  (function () {
+    const STORAGE_KEY = 'rsak_user_reviews';
+    const listEl = document.getElementById('reviewsList');
+    const form = document.getElementById('reviewForm');
+    const statusEl = document.getElementById('reviewStatus');
+    const charCount = document.getElementById('charCount');
+    const messageInput = document.getElementById('reviewMessage');
+    if (!listEl || !form) return;
+    const seedReviews = [
+      {
+        name: 'Grace N.',
+        role: 'Parent',
+        group: 'Intermediate group',
+        rating: 5,
+        message: 'My son’s confidence and first touch improved within weeks. The coaches are patient and serious about development.',
+        id: 'seed-1'
+      },
+      {
+        name: 'David K.',
+        role: 'Player',
+        group: 'Advanced',
+        rating: 5,
+        message: 'Training is organised and intense in a good way. I finally understand positioning and how to press as a team.',
+        id: 'seed-2'
+      },
+      {
+        name: 'Sarah M.',
+        role: 'Parent',
+        group: 'Junior pathway',
+        rating: 5,
+        message: 'The academy balances hard work with respect. My daughter looks forward to every Saturday session.',
+        id: 'seed-3'
+      },
+      {
+        name: 'James O.',
+        role: 'Parent',
+        group: 'Beginner',
+        rating: 4,
+        message: 'Clear communication and real progress on fitness. Looking forward to more friendly matches this term.',
+        id: 'seed-4'
       }
-
-      function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+    ];
+    let currentReview = 0;
+    let reviewTimer;
+    function starsHtml(n) {
+      const full = '★'.repeat(Math.max(0, Math.min(5, n)));
+      const empty = '☆'.repeat(5 - Math.max(0, Math.min(5, n)));
+      return full + empty;
+    }
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    function loadUserReviews() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
       }
-
-      function loadUserReviews() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          return raw ? JSON.parse(raw) : [];
-        } catch {
-          return [];
-        }
+    }
+    function saveUserReviews(arr) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    }
+    function getAllReviews() {
+      const user = loadUserReviews();
+      return [...user, ...seedReviews];
+    }
+    function renderReviews() {
+      const all = getAllReviews();
+      if (!all.length) {
+        listEl.innerHTML = '';
+        return;
       }
-
-      function saveUserReviews(arr) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+      if (currentReview >= all.length) {
+        currentReview = 0;
       }
-
-      function renderReviews() {
-        const user = loadUserReviews();
-        const all = [...user, ...seedReviews];
-
-        listEl.innerHTML = all.map((r, i) => {
-          const roleLine = [r.role, r.group].filter(Boolean).join(' · ');
-          return (
-            '<article class="review-card">' +
-              '<div class="stars" aria-label="' + r.rating + ' stars">' + starsHtml(r.rating) + '</div>' +
-              '<p>“' + escapeHtml(r.message) + '”</p>' +
-              '<div class="reviewer">' +
-                '<strong>' + escapeHtml(r.name) + '</strong>' +
-                (roleLine ? '<span>' + escapeHtml(roleLine) + '</span>' : '') +
-              '</div>' +
-            '</article>'
-          );
-        }).join('');
-      }
-
-      // Character counter
-      if (messageInput && charCount) {
-        messageInput.addEventListener('input', () => {
-          charCount.textContent = messageInput.value.length;
-        });
-      }
-
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        statusEl.textContent = '';
-        statusEl.className = 'review-status';
-
-        const name = form.name.value.trim();
-        const role = form.role.value;
-        const group = form.group.value.trim();
-        const ratingEl = form.querySelector('input[name="rating"]:checked');
-        const message = form.message.value.trim();
-
-        if (!name || !ratingEl || !message) {
-          statusEl.textContent = 'Please fill in name, rating and your review.';
-          statusEl.classList.add('error');
-          return;
-        }
-
-        if (message.length < 15) {
-          statusEl.textContent = 'Please write a bit more (at least 15 characters).';
-          statusEl.classList.add('error');
-          return;
-        }
-
-        const review = {
-          id: 'user-' + Date.now(),
-          name: name,
-          role: role,
-          group: group,
-          rating: parseInt(ratingEl.value, 10),
-          message: message,
-          createdAt: new Date().toISOString()
-        };
-
-        const existing = loadUserReviews();
-        existing.unshift(review);
-        saveUserReviews(existing);
-
-        form.reset();
-        if (charCount) charCount.textContent = '0';
-        statusEl.textContent = 'Thank you! Your review has been added.';
-        statusEl.classList.add('success');
-
-        renderReviews();
-
-        // Scroll new review into view
-        listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      listEl.innerHTML = all.map((r, i) => {
+        const roleLine = [r.role, r.group].filter(Boolean).join(' · ');
+        return (
+          '<article class="review-card' + (i === currentReview ? ' active' : '') + '">' +
+            '<div class="stars" aria-label="' + r.rating + ' stars">' +
+              starsHtml(r.rating) +
+            '</div>' +
+            '<p>“' + escapeHtml(r.message) + '”</p>' +
+            '<div class="reviewer">' +
+              '<strong>' + escapeHtml(r.name) + '</strong>' +
+              (roleLine ? '<span>' + escapeHtml(roleLine) + '</span>' : '') +
+            '</div>' +
+          '</article>'
+        );
+      }).join('');
+      updateReviewSlider();
+    }
+    function updateReviewSlider() {
+      const cards = listEl.querySelectorAll('.review-card');
+      cards.forEach((card, index) => {
+        card.classList.toggle('active', index === currentReview);
       });
-
+    }
+    function nextReview() {
+      const all = getAllReviews();
+      if (!all.length) return;
+      currentReview = (currentReview + 1) % all.length;
+      updateReviewSlider();
+    }
+    function previousReview() {
+      const all = getAllReviews();
+      if (!all.length) return;
+      currentReview = (currentReview - 1 + all.length) % all.length;
+      updateReviewSlider();
+    }
+    function startReviewSlider() {
+      clearInterval(reviewTimer);
+      reviewTimer = setInterval(() => {
+        nextReview();
+      }, 5000);
+    }
+    // Create slider controls
+    const controls = document.createElement('div');
+    controls.className = 'reviews-slider-controls';
+    const prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.className = 'slider-btn review-prev';
+    prevBtn.setAttribute('aria-label', 'Previous review');
+    prevBtn.innerHTML = '‹';
+    const nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.className = 'slider-btn review-next';
+    nextBtn.setAttribute('aria-label', 'Next review');
+    nextBtn.innerHTML = '›';
+    controls.appendChild(prevBtn);
+    controls.appendChild(nextBtn);
+    listEl.parentElement.insertBefore(controls, listEl);
+    prevBtn.addEventListener('click', () => {
+      previousReview();
+      startReviewSlider();
+    });
+    nextBtn.addEventListener('click', () => {
+      nextReview();
+      startReviewSlider();
+    });
+    // Pause automatic sliding while user is interacting
+    listEl.addEventListener('mouseenter', () => {
+      clearInterval(reviewTimer);
+    });
+    listEl.addEventListener('mouseleave', () => {
+      startReviewSlider();
+    });
+    // Keyboard accessibility
+    listEl.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        previousReview();
+        startReviewSlider();
+      }
+      if (e.key === 'ArrowRight') {
+        nextReview();
+        startReviewSlider();
+      }
+    });
+    // Character counter
+    if (messageInput && charCount) {
+      messageInput.addEventListener('input', () => {
+        charCount.textContent = messageInput.value.length;
+      });
+    }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      statusEl.textContent = '';
+      statusEl.className = 'review-status';
+      const name = form.name.value.trim();
+      const role = form.role.value;
+      const group = form.group.value.trim();
+      const ratingEl = form.querySelector('input[name="rating"]:checked');
+      const message = form.message.value.trim();
+      if (!name || !ratingEl || !message) {
+        statusEl.textContent = 'Please fill in name, rating and your review.';
+        statusEl.classList.add('error');
+        return;
+      }
+      if (message.length < 15) {
+        statusEl.textContent = 'Please write a bit more (at least 15 characters).';
+        statusEl.classList.add('error');
+        return;
+      }
+      const review = {
+        id: 'user-' + Date.now(),
+        name: name,
+        role: role,
+        group: group,
+        rating: parseInt(ratingEl.value, 10),
+        message: message,
+        createdAt: new Date().toISOString()
+      };
+      const existing = loadUserReviews();
+      existing.unshift(review);
+      saveUserReviews(existing);
+      // Show the newly added review
+      currentReview = 0;
+      form.reset();
+      if (charCount) {
+        charCount.textContent = '0';
+      }
+      statusEl.textContent = 'Thank you! Your review has been added.';
+      statusEl.classList.add('success');
       renderReviews();
-    })();
+      startReviewSlider();
+      listEl.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
+    renderReviews();
+    startReviewSlider();
+  })();
   </script>
 
 </body>
